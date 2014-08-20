@@ -37,7 +37,7 @@
         keyboardButton.translatesAutoresizingMaskIntoConstraints = NO;
         keyboardButton.input = keyString;
         keyboardButton.inputOptions = @[@"A", @"B", @"C", @"D"];
-        keyboardButton.textInput = self.textView;
+        keyboardButton.keyInput = self.textView;
         [self.numberView addSubview:keyboardButton];
         
         [self.keyboardButtons addObject:keyboardButton];
