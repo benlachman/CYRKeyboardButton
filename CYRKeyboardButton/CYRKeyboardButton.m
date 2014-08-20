@@ -201,13 +201,13 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
     }
 }
 
-- (void)setTextInput:(id<UITextInput>)textInput
+- (void)setKeyInput:(id<UIKeyInput>)keyInput
 {
-    NSAssert([textInput conformsToProtocol:@protocol(UITextInput)], @"<CYRKeyboardButton> The text input object must conform to the UITextInput protocol!");
+    NSAssert([keyInput conformsToProtocol:@protocol(UIKeyInput)], @"<CYRKeyboardButton> The key input object must conform to the UIKeyInput protocol!");
     
-    [self willChangeValueForKey:NSStringFromSelector(@selector(textInput))];
-    _textInput = textInput;
-    [self didChangeValueForKey:NSStringFromSelector(@selector(textInput))];
+    [self willChangeValueForKey:NSStringFromSelector(@selector(keyInput))];
+    _keyInput = keyInput;
+    [self didChangeValueForKey:NSStringFromSelector(@selector(keyInput))];
 }
 
 #pragma mark - Internal - UI
@@ -282,17 +282,17 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
 {
     BOOL shouldInsertText = YES;
     
-    if ([self.textInput isKindOfClass:[UITextView class]]) {
+    if ([self.keyInput isKindOfClass:[UITextView class]]) {
         // Call UITextViewDelegate methods if necessary
-        UITextView *textView = (UITextView *)self.textInput;
+        UITextView *textView = (UITextView *)self.keyInput;
         NSRange selectedRange = textView.selectedRange;
         
         if ([textView.delegate respondsToSelector:@selector(textView:shouldChangeTextInRange:replacementText:)]) {
             shouldInsertText = [textView.delegate textView:textView shouldChangeTextInRange:selectedRange replacementText:text];
         }
-    } else if ([self.textInput isKindOfClass:[UITextField class]]) {
+    } else if ([self.keyInput isKindOfClass:[UITextField class]]) {
         // Call UITextFieldDelgate methods if necessary
-        UITextField *textField = (UITextField *)self.textInput;
+        UITextField *textField = (UITextField *)self.keyInput;
         NSRange selectedRange = [self textInputSelectedRange];
         
         if ([textField.delegate respondsToSelector:@selector(textField:shouldChangeCharactersInRange:replacementString:)]) {
@@ -301,7 +301,7 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
     }
     
     if (shouldInsertText == YES) {
-        [self.textInput insertText:text];
+        [self.keyInput insertText:text];
         
         [[NSNotificationCenter defaultCenter] postNotificationName:CYRKeyboardButtonPressedNotification object:self
                                                           userInfo:@{CYRKeyboardButtonKeyPressedKey : text}];
@@ -310,16 +310,22 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
 
 - (NSRange)textInputSelectedRange
 {
-    UITextPosition *beginning = self.textInput.beginningOfDocument;
-    
-	UITextRange *selectedRange = self.textInput.selectedTextRange;
-	UITextPosition *selectionStart = selectedRange.start;
-	UITextPosition *selectionEnd = selectedRange.end;
-    
-	const NSInteger location = [self.textInput offsetFromPosition:beginning toPosition:selectionStart];
-	const NSInteger length = [self.textInput offsetFromPosition:selectionStart toPosition:selectionEnd];
-    
-	return NSMakeRange(location, length);
+	if( [self.keyInput conformsToProtocol:@protocol(UITextInput)]) {
+		id<UITextInput> textInput = (id<UITextInput>)self.keyInput;
+
+		UITextPosition *beginning = textInput.beginningOfDocument;
+		
+		UITextRange *selectedRange = textInput.selectedTextRange;
+		UITextPosition *selectionStart = selectedRange.start;
+		UITextPosition *selectionEnd = selectedRange.end;
+		
+		const NSInteger location = [textInput offsetFromPosition:beginning toPosition:selectionStart];
+		const NSInteger length = [textInput offsetFromPosition:selectionStart toPosition:selectionEnd];
+		
+		return NSMakeRange(location, length);
+	} else {
+		return NSMakeRange(NSNotFound, 0);
+	}
 }
 
 #pragma mark - Internal - Configuration
@@ -397,7 +403,7 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
     } else {
         CGPoint location = [recognizer locationInView:self.superview];
         [self.expandedButtonView updateSelectedInputIndexForPoint:location];
-    };
+    }
 }
 
 #pragma mark - Touch Handling
