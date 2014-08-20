@@ -12,20 +12,24 @@
 	<dict>
 		<key>81FBBA09-7A3A-46BC-ABCF-7796099701F5</key>
 		<string>https://github.com/illyabusigin/CYRKeyboardButton.git</string>
+		<key>E6A3745E374054D22E186855FC950E70E2502575</key>
+		<string>github.com:davidkeay/Keyboard.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>Example/Example/Example.xcodeproj/project.xcworkspace</string>
+	<string>Keyboard/Vendor/CYRKeyboardButton/Example/Example.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>81FBBA09-7A3A-46BC-ABCF-7796099701F5</key>
-		<string>../../../..</string>
+		<string>../../../../../../../CYRKeyboardButton</string>
+		<key>E6A3745E374054D22E186855FC950E70E2502575</key>
+		<string>../../../../../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>https://github.com/illyabusigin/CYRKeyboardButton.git</string>
+	<string>github.com:davidkeay/Keyboard.git</string>
 	<key>IDESourceControlProjectVersion</key>
-	<integer>110</integer>
+	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>81FBBA09-7A3A-46BC-ABCF-7796099701F5</string>
+	<string>E6A3745E374054D22E186855FC950E70E2502575</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
@@ -35,6 +39,14 @@
 			<string>81FBBA09-7A3A-46BC-ABCF-7796099701F5</string>
 			<key>IDESourceControlWCCName</key>
 			<string>CYRKeyboardButton</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>E6A3745E374054D22E186855FC950E70E2502575</string>
+			<key>IDESourceControlWCCName</key>
+			<string>Keyboard</string>
 		</dict>
 	</array>
 </dict>
