@@ -107,6 +107,11 @@ extern NSString *const CYRKeyboardButtonKeyPressedKey;
 @property (nonatomic, strong) UIColor *keyHighlightedColor UI_APPEARANCE_SELECTOR;
 
 /**
+ Controls whether the key expands on touch down or not.
+ */
+@property (nonatomic, assign) BOOL expandsOnTouchDown;
+
+/**
  The position of the keyboard button. This is used to determine where to place the popover key views and is automatically determined when the keyboard button is added to a view and update during layout changes.
  */
 @property (nonatomic, readonly) CYRKeyboardButtonPosition position;

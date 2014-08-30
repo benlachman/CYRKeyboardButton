@@ -106,6 +106,7 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
         _inputLabel = inputLabel;
         
         [self updateDisplayStyle];
+		_expandsOnTouchDown = YES;
     }
     
     return self;
@@ -215,11 +216,13 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
 - (void)showInputView
 {
     if (_style == CYRKeyboardButtonStylePhone) {
-        [self hideInputView];
-        
-        self.buttonView = [[CYRKeyboardButtonView alloc] initWithKeyboardButton:self type:CYRKeyboardButtonViewTypeInput];
-        
-        [self.window addSubview:self.buttonView];
+		if( self.expandsOnTouchDown == YES ) {
+			[self hideInputView];
+			
+			self.buttonView = [[CYRKeyboardButtonView alloc] initWithKeyboardButton:self type:CYRKeyboardButtonViewTypeInput];
+			
+			[self.window addSubview:self.buttonView];
+		}
     } else {
         [self setNeedsDisplay];
     }
@@ -229,7 +232,7 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
 - (void)showExpandedInputView:(UILongPressGestureRecognizer *)recognizer
 {
     if (recognizer.state == UIGestureRecognizerStateBegan) {
-        if (self.expandedButtonView == nil) {
+        if (self.expandsOnTouchDown == YES && self.expandedButtonView == nil) {
             CYRKeyboardButtonView *expandedButtonView = [[CYRKeyboardButtonView alloc] initWithKeyboardButton:self type:CYRKeyboardButtonViewTypeExpanded];
             
             [self.window addSubview:expandedButtonView];
@@ -254,8 +257,10 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
 
 - (void)hideExpandedInputView
 {
-    [self.expandedButtonView removeFromSuperview];
-    self.expandedButtonView = nil;
+	if( self.expandedButtonView != nil ) {
+		[self.expandedButtonView removeFromSuperview];
+		self.expandedButtonView = nil;
+	}
 }
 
 - (void)updateDisplayStyle
@@ -429,7 +434,7 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
     CGContextRef context = UIGraphicsGetCurrentContext();
     UIColor *color = self.keyColor;
     
-    if (_style == CYRKeyboardButtonStyleTablet && self.state == UIControlStateHighlighted) {
+    if ( self.state == UIControlStateHighlighted ) {
         color = self.keyHighlightedColor;
     }
     
