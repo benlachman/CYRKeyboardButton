@@ -116,6 +116,12 @@ extern NSString *const CYRKeyboardButtonKeyPressedKey;
  */
 @property (nonatomic, readonly) CYRKeyboardButtonPosition position;
 
+/**
+ The image drawn instead of the text input string
+ */
+@property (nonatomic, retain) UIImage *keyCapImage;
+
+
 // Configuration
 
 /**

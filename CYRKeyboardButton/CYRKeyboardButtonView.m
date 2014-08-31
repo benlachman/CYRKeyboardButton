@@ -139,6 +139,10 @@
     // Generate the overlay
     UIBezierPath *bezierPath = [self inputViewPath];
     NSString *inputString = self.button.input;
+	UIImage *keyCapImage = nil;
+	if( self.button.keyCapImage != nil ) {
+		keyCapImage = self.button.keyCapImage;
+	}
     
     // Position the overlay
     CGRect keyRect = [self convertRect:self.button.frame fromView:self.button.superview];
@@ -182,7 +186,7 @@
     }
     
     // Text drawing
-    {
+	if( keyCapImage == nil ) {
         UIColor *stringColor = self.button.keyTextColor;
         
         CGRect stringRect = bezierPath.bounds;
@@ -195,7 +199,9 @@
                                                 attributes:
                                                 @{NSFontAttributeName : [UIFont fontWithName:@"HelveticaNeue-Light" size:44], NSForegroundColorAttributeName : stringColor, NSParagraphStyleAttributeName : p}];
         [attributedString drawInRect:stringRect];
-    }
+	} else {
+		[keyCapImage drawInRect:bezierPath.bounds];
+	}
 }
 
 - (void)drawExpandedInputView:(CGRect)rect

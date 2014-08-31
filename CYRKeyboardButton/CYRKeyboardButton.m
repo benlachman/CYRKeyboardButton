@@ -223,10 +223,9 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
 			
 			[self.window addSubview:self.buttonView];
 		}
-    } else {
-        [self setNeedsDisplay];
     }
     
+	[self setNeedsDisplay];
 }
 
 - (void)showExpandedInputView:(UILongPressGestureRecognizer *)recognizer
