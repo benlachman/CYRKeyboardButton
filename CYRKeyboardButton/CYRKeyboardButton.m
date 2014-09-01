@@ -40,6 +40,7 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
 @interface CYRKeyboardButton () <UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) UILabel *inputLabel;
+@property (nonatomic, strong) UIImageView *keyCapImageView;
 @property (nonatomic, strong) CYRKeyboardButtonView *buttonView;
 @property (nonatomic, strong) CYRKeyboardButtonView *expandedButtonView;
 
@@ -85,25 +86,40 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
         
         // Styling
         self.backgroundColor = [UIColor clearColor];
+		self.drawsBackground = YES;
         self.clipsToBounds = NO;
         self.layer.masksToBounds = NO;
         self.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
+		self.layer.borderWidth = 1.0f;
         
         // State handling
         [self addTarget:self action:@selector(handleTouchDown) forControlEvents:UIControlEventTouchDown];
         [self addTarget:self action:@selector(handleTouchUpInside) forControlEvents:UIControlEventTouchUpInside];
     
         // Input label
-        UILabel *inputLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(frame), CGRectGetHeight(frame))];
-        inputLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-        inputLabel.textAlignment = NSTextAlignmentCenter;
-        inputLabel.backgroundColor = [UIColor clearColor];
-        inputLabel.userInteractionEnabled = NO;
-        inputLabel.textColor = _keyTextColor;
-        inputLabel.font = _font;
-        
-        [self addSubview:inputLabel];
-        _inputLabel = inputLabel;
+		_inputLabel = ({
+			UILabel *inputLabel = [[UILabel alloc] initWithFrame:self.bounds];
+			inputLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+			inputLabel.textAlignment = NSTextAlignmentCenter;
+			inputLabel.backgroundColor = [UIColor clearColor];
+			inputLabel.userInteractionEnabled = NO;
+			inputLabel.textColor = _keyTextColor;
+			inputLabel.font = _font;
+			
+			[self addSubview:inputLabel];
+			inputLabel;
+		});
+
+		// Key Cap Image View
+		_keyCapImageView = ({
+			UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectInset(self.bounds, 3, 3)];
+
+			imageView.contentMode = UIViewContentModeScaleAspectFit;
+			imageView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+
+			[self addSubview:imageView];
+			imageView;
+		});
         
         [self updateDisplayStyle];
 		_expandsOnTouchDown = YES;
@@ -124,6 +140,8 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
     [self setNeedsDisplay];
     
     [self updateButtonPosition];
+
+	self.keyCapImageView.frame = CGRectInset(self.bounds, 3, 3);
 }
 
 #pragma mark - UIGestureRecognizerDelegate
@@ -156,6 +174,11 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
     [self didChangeValueForKey:NSStringFromSelector(@selector(input))];
     
     _inputLabel.text = _input;
+
+	if( self.keyCapImageView.image == nil ) {
+		self.inputLabel.hidden = NO;
+		self.keyCapImageView.hidden = YES;
+	}
 }
 
 - (void)setInputOptions:(NSArray *)inputOptions
@@ -209,6 +232,26 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
     [self willChangeValueForKey:NSStringFromSelector(@selector(keyInput))];
     _keyInput = keyInput;
     [self didChangeValueForKey:NSStringFromSelector(@selector(keyInput))];
+}
+
+- (void)setKeyCapImage:(UIImage *)image {
+	if( image != _keyCapImage ) {
+		[self willChangeValueForKey:NSStringFromSelector(@selector(keyCapImage))];
+		_keyCapImage = image;
+		[self didChangeValueForKey:NSStringFromSelector(@selector(keyCapImage))];
+	}
+
+	_keyCapImageView.image = image;
+
+	if( image != nil ) {
+		self.inputLabel.hidden = YES;
+		self.keyCapImageView.hidden = NO;
+
+		self.keyCapImageView.frame = self.bounds;
+	} else {
+		self.inputLabel.hidden = NO;
+		self.keyCapImageView.hidden = YES;
+	}
 }
 
 #pragma mark - Internal - UI
@@ -336,7 +379,7 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
 
 - (void)updateButtonPosition
 {
-    // Determine the button sposition state based on the superview padding
+    // Determine the button position state based on the superview padding
     CGFloat leftPadding = CGRectGetMinX(self.frame);
     CGFloat rightPadding = CGRectGetMaxX(self.superview.frame) - CGRectGetMaxX(self.frame);
     CGFloat minimumClearance = CGRectGetWidth(self.frame) / 2 + 8;
@@ -382,7 +425,7 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
 - (void)handleTouchDown
 {
     [[UIDevice currentDevice] playInputClick];
-    
+
     [self showInputView];
 }
 
@@ -436,18 +479,20 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
     if ( self.state == UIControlStateHighlighted ) {
         color = self.keyHighlightedColor;
     }
-    
-    UIColor *shadow = self.keyShadowColor;
-    CGSize shadowOffset = CGSizeMake(0.1, 1.1);
-    CGFloat shadowBlurRadius = 0;
-    
-    UIBezierPath *roundedRectanglePath =
-    [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height - 1) cornerRadius:self.keyCornerRadius];
-    CGContextSaveGState(context);
-    CGContextSetShadowWithColor(context, shadowOffset, shadowBlurRadius, shadow.CGColor);
-    [color setFill];
-    [roundedRectanglePath fill];
-    CGContextRestoreGState(context);
+
+	if( self.drawsBackground == YES ) {
+		UIColor *shadow = self.keyShadowColor;
+		CGSize shadowOffset = CGSizeMake(0.1, 1.1);
+		CGFloat shadowBlurRadius = 0;
+		
+		UIBezierPath *roundedRectanglePath =
+		[UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height - 1) cornerRadius:self.keyCornerRadius];
+		CGContextSaveGState(context);
+		CGContextSetShadowWithColor(context, shadowOffset, shadowBlurRadius, shadow.CGColor);
+		[color setFill];
+		[roundedRectanglePath fill];
+		CGContextRestoreGState(context);
+	}
 }
 
 @end
