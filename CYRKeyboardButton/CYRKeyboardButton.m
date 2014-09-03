@@ -34,8 +34,11 @@
 #import "CYRKeyboardButton.h"
 #import "CYRKeyboardButtonView.h"
 
+#define CYRKeyCapImageViewInset 5.0f
+
 NSString *const CYRKeyboardButtonPressedNotification = @"CYRKeyboardButtonPressedNotification";
 NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKey";
+
 
 @interface CYRKeyboardButton () <UIGestureRecognizerDelegate>
 
@@ -90,8 +93,7 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
         self.clipsToBounds = NO;
         self.layer.masksToBounds = NO;
         self.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
-		self.layer.borderWidth = 1.0f;
-        
+
         // State handling
         [self addTarget:self action:@selector(handleTouchDown) forControlEvents:UIControlEventTouchDown];
         [self addTarget:self action:@selector(handleTouchUpInside) forControlEvents:UIControlEventTouchUpInside];
@@ -112,7 +114,7 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
 
 		// Key Cap Image View
 		_keyCapImageView = ({
-			UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectInset(self.bounds, 3, 3)];
+			UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectInset(self.bounds, CYRKeyCapImageViewInset, CYRKeyCapImageViewInset)];
 
 			imageView.contentMode = UIViewContentModeScaleAspectFit;
 			imageView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
@@ -141,7 +143,7 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
     
     [self updateButtonPosition];
 
-	self.keyCapImageView.frame = CGRectInset(self.bounds, 3, 3);
+	self.keyCapImageView.frame = CGRectInset(self.bounds, CYRKeyCapImageViewInset, CYRKeyCapImageViewInset);
 }
 
 #pragma mark - UIGestureRecognizerDelegate
@@ -431,8 +433,11 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
 
 - (void)handleTouchUpInside
 {
-    [self insertText:self.input];
-    
+#warning this is janky, fix me.
+	if( [[self allTargets] count] == 0 || ([[self allTargets] count] == 1 && [[[self actionsForTarget:self forControlEvent:UIControlEventTouchUpInside] firstObject] isEqualToString:@"handleTouchUpInside"]) ) {
+		[self insertText:self.input];
+	}
+
     [self hideInputView];
     [self hideExpandedInputView];
 }
