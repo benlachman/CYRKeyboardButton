@@ -175,12 +175,17 @@ NSString *const CYRKeyboardButtonKeyPressedKey = @"CYRKeyboardButtonKeyPressedKe
     _input = input;
     [self didChangeValueForKey:NSStringFromSelector(@selector(input))];
     
-    _inputLabel.text = _input;
+    if (_keyDisplayText == nil) _inputLabel.text = _input;
 
 	if( self.keyCapImageView.image == nil ) {
 		self.inputLabel.hidden = NO;
 		self.keyCapImageView.hidden = YES;
 	}
+}
+
+- (void)setKeyDisplayText:(NSString *)keyDisplayText {
+    _keyDisplayText = keyDisplayText;
+    _inputLabel.text = keyDisplayText;
 }
 
 - (void)setInputOptions:(NSArray *)inputOptions
